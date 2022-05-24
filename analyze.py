@@ -1,31 +1,23 @@
 import statistics
 import json
 
+_boxleiter_number = 30
+_steam_cut_sales_taxes = 0.65
+
 def analyze(args):
 	with open(args.input, 'r') as f:
-		games = json.loads(f.read())
+		data = json.loads(f.read())
 
-	def filter(game):
-		if game["released"] is None:
-			return False
-		if game["price"] is None:
-			return False
-		if game["price"] <= 9:
-			return False
-		if game["reviews"] < 10:
-			return False
+	# TODO: check for early access? check descriptions for keywords, this is maybe too harsh?
+	# TODO: output manually and allow filtering by hand
+	def _filter(game):
+		return set(data["criteria"]["tags"]).issubset(game["top_tags"])
+	games = [game for game in data["games"] if _filter(game)]
 
-		is_roguelike = "Rogue-like" in game["top_tags"] or "Rogue-lite" in game["top_tags"]
-		is_deckbuilder = "Roguelike Deckbuilder" in game["top_tags"] or "Deckbuilding" in game["top_tags"]
-
-		# TODO: check for early access? check descriptions for keywords, this is maybe too harsh?
-		return is_roguelike and is_deckbuilder
-
-	games = [game for game in games if filter(game)]
-
-	for game in games:
+	for game in data["games"]:
 		if game["price"]:
-			game["revenue"] = round(game["reviews"] * 50 * game["price"] * .65)
+			copies_sold = game["reviews"] * _boxleiter_number
+			game["revenue"] = round(copies_sold * game["price"] * _steam_cut_sales_taxes)
 		else:
 			game["revenue"] = 0
 
@@ -35,10 +27,10 @@ def analyze(args):
 	# TODO: lets save all the tags, and have a way to filte rbased on top 5 tags or something,
 	# i mean check maybe these ARE rogueliek deckbuilders but idk
 
-	for game in games:
+	for game in data["games"]:
 		print(f"{game['title']}:\t\t${int(game['revenue']):,d}")
 
-	revenue = [game["revenue"] for game in games]
+	revenue = [game["revenue"] for game in data["games"]]
 	if len(revenue) > 2:
 		quantiles = statistics.quantiles(revenue)
 		print(f"25%: ${int(quantiles[0]):,d}")

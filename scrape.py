@@ -1,34 +1,39 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import time
 import json
+from datetime import datetime
+
+import date
 
 from tags import TAG_IDS
 from tags import TAG_NAMES
 
 def scrape(args):
 	output = {
-		'critera': {
+		'criteria': {
 			'tags': args.tag,
+			'start': date.to_dict(args.start),
+			'end': date.to_dict(args.end),
 		},
 		'games': [],
 	}
 
 	target_year = 2021
-	current_year = float('inf')
-	start = 0
+	current_date = args.end
+	result_index = 0
 
 	# TODO: output info on the search in the file
-	while current_year >= target_year:
+	while current_date > args.start:
 		try:
 			tags = "%2C".join([str(TAG_IDS[tag]) for tag in args.tag])
 		except KeyError as tag:
 			print(f"Error: tag {tag} not found in 'tags.py'")
 			return
-		url = f"https://store.steampowered.com/search/?sort_by=Released_DESC&tags={tags}&category1=998&category3=2&os=win&start={start}&count=25"
+		max_results = 25 # The minimum that's respected
+		url = f"https://store.steampowered.com/search/?sort_by=Released_DESC&tags={tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}"
 
-		start += 25
+		# TODO: add the amount actually found instead just in case
 		print(url)
 		headers = {"Accept-Language": "en-US, en;q=0.5"}
 		results = requests.get(url, headers=headers)
@@ -36,6 +41,7 @@ def scrape(args):
 
 		soup = BeautifulSoup(results.text, "html.parser")
 		games = soup.find_all("a", class_="search_result_row")
+		result_index += len(games)
 
 
 		for game in games:
@@ -45,13 +51,8 @@ def scrape(args):
 			if released:
 				released = released.text.strip()
 				try:
-					released = time.strptime(released, "%b %d, %Y")
-					released = {
-						"month": released.tm_mon,
-						"year": released.tm_year,
-						"day": released.tm_mday,
-					}
-					current_year = released["year"]
+					released = datetime.strptime(released, "%b %d, %Y").date()
+					current_date = released
 				except ValueError:
 					released = None
 
@@ -72,14 +73,12 @@ def scrape(args):
 			else:
 				price = None
 
-			# TODO: make a private git repo for this!!
-			# TODO: make sure these are in order!!
 			tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
 
-			if current_year == target_year:
+			if released and (args.start <= released <= args.end):
 				output["games"].append({
 					"title": title,
-					"released": released,
+					"released": date.to_dict(released),
 					"reviews": reviews,
 					"price": price,
 					"top_tags": tags,
