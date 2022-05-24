@@ -1,25 +1,22 @@
 import datetime
 
 def _parse(s, start):
+	# Defaults
+	if start:
+		month = 1
+		day = 1
+	else:
+		month = 12
+		day = 31
+
+	# Prase the string
 	pieces = s.split("/")
-
 	try:
-		try:
-			day = int(pieces[-3])
-		except IndexError:
-			if start:
-				day = 1
-			else:
-				day = 31
-
-		try:
-			month = int(pieces[-2])
-		except IndexError:
-			if start:
-				month = 1
-			else:
-				month = 12
-
+		if len(pieces) == 2:
+			month = int(pieces[0])
+		elif len(pieces) == 3:
+			month = int(pieces[0])
+			day = int(pieces[1])
 		year = int(pieces[-1])
 	except (IndexError, ValueError):
 		raise ValueError(s)
