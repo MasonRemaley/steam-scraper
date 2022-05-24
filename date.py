@@ -36,12 +36,11 @@ def start(s):
 def end(s):
 	return _parse(s, False)
 
-def to_dict(date):
+def format(date):
+	return date.strftime("%m/%d/%Y")
+
+def format_optional(date):
 	if date is None:
 		return None
-	else:
-		return {
-			"month": date.month,
-			"year": date.year,
-			"day": date.day,
-		}
+	return format(date)
+

@@ -13,8 +13,8 @@ def scrape(args):
 	output = {
 		'criteria': {
 			'tags': args.tag,
-			'start': date.to_dict(args.start),
-			'end': date.to_dict(args.end),
+			'start': date.format(args.start),
+			'end': date.format(args.end),
 		},
 		'games': [],
 	}
@@ -45,16 +45,18 @@ def scrape(args):
 
 
 		for game in games:
+			store_page = "/".join(game["href"].split("/")[0:-1])
+
 			title = game.find("span", class_="title").text
 
-			released = game.find("div", class_="search_released")
-			if released:
-				released = released.text.strip()
+			release_date = game.find("div", class_="search_released")
+			if release_date:
+				release_date = release_date.text.strip()
 				try:
-					released = datetime.strptime(released, "%b %d, %Y").date()
-					current_date = released
+					release_date = datetime.strptime(release_date, "%b %d, %Y").date()
+					current_date = release_date
 				except ValueError:
-					released = None
+					release_date = None
 
 			reviews = game.find("span", class_="search_review_summary")
 			if reviews:
@@ -75,14 +77,17 @@ def scrape(args):
 
 			tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
 
-			if released and (args.start <= released <= args.end):
+			if release_date and (args.start <= release_date <= args.end):
 				output["games"].append({
 					"title": title,
-					"released": date.to_dict(released),
+					"store_page": store_page,
+					"release_date": date.format_optional(release_date),
 					"reviews": reviews,
 					"price": price,
 					"top_tags": tags,
 				})
+
+	output["games"].reverse()
 
 	with open(args.output, 'w') as f:
 		f.write(json.dumps(output, indent="\t"))
