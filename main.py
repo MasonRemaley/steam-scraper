@@ -5,7 +5,7 @@ import date
 from scrape import scrape
 from analyze import analyze
 
-parser = argparse.ArgumentParser(description="Steam market analyzer. First scrape data from Steam, then analyze the scraped data.")
+parser = argparse.ArgumentParser(description="Steam scraper. First scrape data from Steam, then analyze the scraped data.")
 
 subparsers = parser.add_subparsers(dest="command")
 
