@@ -1,3 +1,7 @@
+####
+### Utility file. Helps with date parsing.
+####
+
 import datetime
 
 def _parse(s, start):
@@ -28,15 +32,19 @@ def _parse(s, start):
 	return datetime.date(year, month, day)
 
 def start(s):
+	"""Parse an end date (rounds down.)"""
 	return _parse(s, True)
 
 def end(s):
+	"""Parse a start date (rounds up.)"""
 	return _parse(s, False)
 
 def format(date):
+	"""Format a date."""
 	return date.strftime("%m/%d/%Y")
 
 def format_optional(date):
+	"""Format a date, or return `None` if `None`."""
 	if date is None:
 		return None
 	return format(date)

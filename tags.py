@@ -1,3 +1,7 @@
+####
+### Tag IDs scraped once from `steamdb.info` and saved.
+####
+
 TAG_IDS = {
 	"Indie": 492,
 	"Profile Features Limited": 1003823,

@@ -1,3 +1,7 @@
+####
+### Scraping implementation.
+####
+
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -10,6 +14,7 @@ from tags import TAG_IDS
 from tags import TAG_NAMES
 
 def scrape(args):
+	# The output data
 	output = {
 		'criteria': {
 			'tags': args.tag,
@@ -19,29 +24,31 @@ def scrape(args):
 		'games': [],
 	}
 
-	target_year = 2021
+	# Scrape on page at a time starting from the present until we pass the start date
 	current_date = args.end
 	result_index = 0
-
 	while current_date > args.start:
+		# Build the URL
 		try:
 			tags = "%2C".join([str(TAG_IDS[tag]) for tag in args.tag])
 		except KeyError as tag:
 			print(f"Error: tag {tag} not found in 'tags.py'")
 			return
 		max_results = 25 # The minimum that's respected
-		url = f"https://store.steampowered.com/search/?sort_by=Released_DESC&tags={tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}"
+		url = ("https://store.steampowered.com/search/?sort_by=Released_DESC&tags=" +
+			f"{tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}")
 
+		# Make the request
 		print(f"Scraping `{url}`, CTRL+C to cancel...")
 		headers = {"Accept-Language": "en-US, en;q=0.5"}
 		results = requests.get(url, headers=headers)
 
-
+		# Parse the results and increment our result counter
 		soup = BeautifulSoup(results.text, "html.parser")
 		games = soup.find_all("a", class_="search_result_row")
 		result_index += len(games)
 
-
+		# Process each game
 		for game in games:
 			store_page = "/".join(game["href"].split("/")[0:-1])
 
@@ -85,9 +92,10 @@ def scrape(args):
 					"top_tags": tags,
 				})
 
+	# Store the games oldest to newest
 	output["games"].reverse()
 
+	# Commit the results to disk
 	with open(args.output, 'w') as f:
 		f.write(json.dumps(output, indent="\t"))
-
 	print(f"Scraped data written to {args.output}")
