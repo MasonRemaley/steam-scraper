@@ -43,4 +43,3 @@ def format_optional(date):
 	if date is None:
 		return None
 	return format(date)
-

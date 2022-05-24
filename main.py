@@ -29,6 +29,8 @@ scrape_command.add_argument(
 
 analyze_command = subparsers.add_parser("analyze", help="analyze scraped data")
 analyze_command.add_argument("input", metavar="IN", help="scraped data path")
+analyze_command.add_argument("-m", "--min-reviews", type=int, help="exclude games with less than this many reviews", default=10)
+analyze_command.add_argument("-i", "--ignore-top-tags", help="include any game with the requested tags even if they aren't in the top tags", action=argparse.BooleanOptionalAction)
 
 args = parser.parse_args()
 

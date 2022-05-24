@@ -23,7 +23,6 @@ def scrape(args):
 	current_date = args.end
 	result_index = 0
 
-	# TODO: output info on the search in the file
 	while current_date > args.start:
 		try:
 			tags = "%2C".join([str(TAG_IDS[tag]) for tag in args.tag])
@@ -33,8 +32,7 @@ def scrape(args):
 		max_results = 25 # The minimum that's respected
 		url = f"https://store.steampowered.com/search/?sort_by=Released_DESC&tags={tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}"
 
-		# TODO: add the amount actually found instead just in case
-		print(url)
+		print(f"Scraping `{url}`, CTRL+C to cancel...")
 		headers = {"Accept-Language": "en-US, en;q=0.5"}
 		results = requests.get(url, headers=headers)
 
@@ -93,6 +91,3 @@ def scrape(args):
 		f.write(json.dumps(output, indent="\t"))
 
 	print(f"Scraped data written to {args.output}")
-
-
-# TODO: follower counts?

@@ -8,11 +8,16 @@ def analyze(args):
 	with open(args.input, 'r') as f:
 		data = json.loads(f.read())
 
-	# TODO: check for early access? check descriptions for keywords, this is maybe too harsh?
-	# TODO: output manually and allow filtering by hand
 	def _filter(game):
-		return set(data["criteria"]["tags"]).issubset(game["top_tags"])
-	games = [game for game in data["games"] if _filter(game)]
+		if game["reviews"] < args.min_reviews:
+			return False
+
+		if not args.ignore_top_tags and not set(data["criteria"]["tags"]).issubset(game["top_tags"]):
+			return False
+
+		return True
+
+	data["games"] = [game for game in data["games"] if _filter(game)]
 
 	for game in data["games"]:
 		if game["price"]:
@@ -21,11 +26,7 @@ def analyze(args):
 		else:
 			game["revenue"] = 0
 
-	games.sort(key=lambda g: g["revenue"])
-
-	# print(json.dumps(games, indent='\t'))
-	# TODO: lets save all the tags, and have a way to filte rbased on top 5 tags or something,
-	# i mean check maybe these ARE rogueliek deckbuilders but idk
+	data["games"].sort(key=lambda g: g["revenue"])
 
 	for game in data["games"]:
 		print(f"{game['title']}:\t\t${int(game['revenue']):,d}")
@@ -37,13 +38,3 @@ def analyze(args):
 		print(f"50%: ${int(quantiles[1]):,d}")
 		print(f"75%: ${int(quantiles[2]):,d}")
 	print(f"total: {len(revenue)}")
-	# print(f"{game['revenue']:,d}")
-	# print(games)
-	# TODO:
-	# - pagify (we know how now!)
-	# - stop when we get to a certain year
-	# - skip stuff (or filter later) based on price/reviews
-	# - save some data to disk and figure out regexes to get the numbers out
-	# - make it easier to search, output to csv or print nicesly, calcualte averages, etc
-	# - maybe save results in intermediate step so we don't query over and over
-	# - add store page links
