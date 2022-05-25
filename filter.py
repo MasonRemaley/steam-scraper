@@ -23,7 +23,7 @@ def union(*dicts):
 		*dicts,
 	)
 
-def intersection(*dicts):
+def intersect(*dicts):
 	dicts = list(dicts)
 
 	if len(dicts) == 0:

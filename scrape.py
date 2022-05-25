@@ -13,20 +13,27 @@ import date
 from tags import TAG_IDS
 from tags import TAG_NAMES
 
-def scrape(args):
+def scrape(tags, start, end):
+	# Convert the args
+	start = date.start(start)
+	end = date.end(end)
+	if type(tags) != list:
+		tags = [tags]
+	print(tags)
+	try:
+		tags = "%2C".join([str(TAG_IDS[tag]) for tag in tags])
+	except KeyError as tag:
+		print(f"Error: tag {tag} not found in 'tags.py'")
+		return None
+
 	# The output data
 	output = {}
 
 	# Scrape on page at a time starting from the present until we pass the start date
-	current_date = args.end
+	current_date = end
 	result_index = 0
-	while current_date > args.start:
+	while current_date > start:
 		# Build the URL
-		try:
-			tags = "%2C".join([str(TAG_IDS[tag]) for tag in args.tag])
-		except KeyError as tag:
-			print(f"Error: tag {tag} not found in 'tags.py'")
-			return
 		max_results = 25 # The minimum that's respected
 		url = ("https://store.steampowered.com/search/?sort_by=Released_DESC&tags=" +
 			f"{tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}")
@@ -73,19 +80,17 @@ def scrape(args):
 			else:
 				price = None
 
-			tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
+			top_tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
 
-			if release_date and (args.start <= release_date <= args.end):
+			if release_date and (start <= release_date <= end):
 				output[title] = {
 					"title": title,
 					"store_page": store_page,
 					"release_date": date.format_optional(release_date),
 					"reviews": reviews,
 					"price": price,
-					"top_tags": tags,
+					"top_tags": top_tags,
 				}
 
-	# Commit the results to disk
-	with open(args.output, 'w') as f:
-		f.write(json.dumps(output, indent="\t"))
-	print(f"Scraped data written to {args.output}")
+	# Return the results
+	return output

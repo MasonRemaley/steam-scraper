@@ -8,40 +8,39 @@ pip3 install -r requirements.txt
 
 # Usage
 
-Example usage:
-```sh
-python3 main.py scrape -t "Roguelike Deckbuilder" out/roguelike-deckbuilders.json --start 21 --end 21
-python3 main.py scrape -t "Rogue-like"  out/rogue-like.json --start 21 --end 21
-python3 main.py scrape -t "Rogue-lite"  out/rogue-lite.json --start 21 --end 21
-python3 main.py scrape -t "Card Game"  out/card-game.json --start 21 --end 21
-python3 main.py scrape -t "Card Battler"  out/card-battler.json --start 21 --end 21
+Scraping example:
+```py
+import steam_scraper as ss
 
-python3
-> import filter as f
->
-> rd = f.load("out/roguelike-deckbuilders.json")
-> rl = f.load("out/rogue-like.json")
-> rt = f.load("out/rogue-lite.json")
-> cg = f.load("out/card-game.json")
-> cb = f.load("out/card-battler.json")
->
-> card_games = f.union(rd, cg, cb)
-> roguelikes = f.union(rd, rl, rt)
-> roguelike_cardgames = f.intersection(card_games, roguelikes)
-> 
-> filter.save(roguelike_cardgames, "out/roguelike-cardgames.json")
-> 
-> import analyze as a
-> a.analyze(roguelike_cardgames)
-> # (output printed here)
->
-> exit()
-python3 main.py analyze out/roguelike-cardgames.json
+# Months can also be inputted as strings (m/d/y or m/y), tags can be a list
+rd = ss.scrape("Roguelike Deckbuilder", start=2021, end=2021)
+rl = ss.scrape("Rogue-like", start=2021, end=2021)
+rt = ss.scrape("Rogue-lite", start=2021, end=2021)
+cg = ss.scrape("Card Game", start=2021, end=2021)
+cb = ss.scrape("Card Battler", start=2021, end=2021)
+
+ss.save(rd, "out/roguelike-deckbuilder.json")
+ss.save(rl, "out/rogue-like.json")
+ss.save(rt, "out/rogue-lite.json")
+ss.save(cg, "out/card-game.json")
+ss.save(cb, "out/card-battler.json")
 ```
 
-More info:
-```sh
-python3 main.py --help
+Analysis example:
+```py
+import steam_scraper as ss
+
+rd = ss.load("out/roguelike-deckbuilder.json")
+rl = ss.load("out/rogue-like.json")
+rt = ss.load("out/rogue-lite.json")
+cg = ss.load("out/card-game.json")
+cb = ss.load("out/card-battler.json")
+
+card_games = ss.union(rd, cg, cb)
+roguelikes = ss.union(rd, rl, rt)
+roguelike_cardgames = ss.intersect(card_games, roguelikes)
+
+ss.analyze(roguelike_cardgames)
 ```
 
 # Warning
@@ -54,6 +53,7 @@ if Steam gets upset if they realize you're scraping, doing that is certainly a w
 
 # To Do
 - In the process of switching over to a completely repl based approach
+	- better error handling for repl approach?
 - Add some tests to filter.py, I *think* I got it right
 - Add more complicated tag processing (e.g. we should be able to check for
   or(and(or(roguelike, roguelite), or(card game, deckbuilding, card battler)), roguelike deckbuilder),

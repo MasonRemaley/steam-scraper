@@ -5,6 +5,9 @@
 import datetime
 
 def _parse(s, start):
+	# Convert to string if needed
+	s = str(s)
+
 	# Defaults
 	if start:
 		month = 1
