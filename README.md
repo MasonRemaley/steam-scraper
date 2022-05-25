@@ -36,11 +36,22 @@ rt = ss.load("out/rogue-lite.json")
 cg = ss.load("out/card-game.json")
 cb = ss.load("out/card-battler.json")
 
-card_games = ss.union(rd, cg, cb)
-roguelikes = ss.union(rd, rl, rt)
-roguelike_cardgames = ss.intersect(card_games, roguelikes)
+cg = ss.union(rd, cg, cb)
+rl = ss.union(rd, rl, rt)
+rc = ss.intersect(cg, rl)
 
-ss.analyze(roguelike_cardgames)
+# At this point you'll probably want to filter this list a bit, and then save it an look over it
+# manually to make sure it looks right/remove any irrelevant games.
+rc = ss.min_price(rc, 14.99)
+rc = ss.min_reviews(rc, 10)
+rc = ss.without_top_tag(rc, "Early Access") # Note: misses some early access games right now
+ss.save(rc, "out/rc-filtered.json")
+
+# Once you're ready for analysis, you can load it back in if you made any changes and analyze it.
+rc = ss.load("out/rc-filtered.json")
+
+
+ss.analyze(rc)
 ```
 
 # Warning
@@ -52,6 +63,15 @@ if Steam gets upset if they realize you're scraping, doing that is certainly a w
 
 
 # To Do
+- Does early access filter always work when searching only top tags?
+	- It doesn't...
+- Pick some games and double check their data manually, we almost got reviews off by a large factor
+  due to commas lol...
+- Filter based on descriptions? Or even just mark them?
+- Also estimate games going on sale?
+- Rename revenue to estimated revenue
+- Maybe include upper and lower estimates for revenue
+- Add a way to remove below a price in the repl instead of in analysis
 - In the process of switching over to a completely repl based approach
 	- better error handling for repl approach?
 - Add some tests to filter.py, I *think* I got it right
@@ -66,5 +86,5 @@ if Steam gets upset if they realize you're scraping, doing that is certainly a w
 - Make it easier to iteratively filter list by hand, don't aggregate away the data--just automate
   the painful parts
 - If we want to look at old years, we could jump more pages back
-- Check for early access
 - Check follower counts?
+- Add back top tags check?

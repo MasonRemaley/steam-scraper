@@ -19,7 +19,6 @@ def scrape(tags, start, end):
 	end = date.end(end)
 	if type(tags) != list:
 		tags = [tags]
-	print(tags)
 	try:
 		tags = "%2C".join([str(TAG_IDS[tag]) for tag in tags])
 	except KeyError as tag:
@@ -65,7 +64,9 @@ def scrape(tags, start, end):
 
 			reviews = game.find("span", class_="search_review_summary")
 			if reviews:
-				reviews = int(re.search(r"(\d+) user reviews", reviews["data-tooltip-html"])[1])
+				reviews = reviews["data-tooltip-html"]
+				reviews = reviews.replace(",", "")
+				reviews = int(re.search(r"(\d+) user reviews", reviews)[1])
 			else:
 				reviews = 0
 

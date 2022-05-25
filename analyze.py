@@ -4,26 +4,12 @@
 
 import statistics
 
-_boxleiter_number = 30
+_boxleiter_number = 38
 _steam_cut_sales_taxes = 0.65
 
 def analyze(data, min_reviews=10):
-	# Filter out games that we don't want to analyze
-	def _filter(game):
-		if game["reviews"] < min_reviews:
-			return False
-
-		# if (not args.ignore_top_tags
-		# 	and not set(data["criteria"]["tags"]).issubset(game["top_tags"])):
-		# 	return False
-
-		if game["price"] == 0 or game["price"] is None:
-			return False
-
-		return True
-	data = [game for game in data.values() if _filter(game)]
-
 	# Estimate revenue
+	data = list(data.values())
 	for game in data:
 		if game["price"]:
 			copies_sold = game["reviews"] * _boxleiter_number

@@ -45,3 +45,12 @@ def intersect(*dicts):
 def save(games, path):
 	with open(path, 'w') as f:
 		f.write(json.dumps(games, indent="\t"))
+
+def min_price(games, min_price):
+	return { k : v for (k, v) in games.items() if v["price"] is not None and v["price"] >= min_price }
+
+def min_reviews(games, min_reviews):
+	return { k : v for (k, v) in games.items() if v["reviews"] is not None and v["reviews"] >= min_reviews }
+
+def without_top_tag(games, tag):
+	return { k : v for (k, v) in games.items() if tag not in v["top_tags"] }
