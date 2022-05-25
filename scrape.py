@@ -15,14 +15,7 @@ from tags import TAG_NAMES
 
 def scrape(args):
 	# The output data
-	output = {
-		'criteria': {
-			'tags': args.tag,
-			'start': date.format(args.start),
-			'end': date.format(args.end),
-		},
-		'games': [],
-	}
+	output = {}
 
 	# Scrape on page at a time starting from the present until we pass the start date
 	current_date = args.end
@@ -45,11 +38,11 @@ def scrape(args):
 
 		# Parse the results and increment our result counter
 		soup = BeautifulSoup(results.text, "html.parser")
-		games = soup.find_all("a", class_="search_result_row")
-		result_index += len(games)
+		scraped_games = soup.find_all("a", class_="search_result_row")
+		result_index += len(scraped_games)
 
 		# Process each game
-		for game in games:
+		for game in scraped_games:
 			store_page = "/".join(game["href"].split("/")[0:-1])
 
 			title = game.find("span", class_="title").text
@@ -83,17 +76,14 @@ def scrape(args):
 			tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
 
 			if release_date and (args.start <= release_date <= args.end):
-				output["games"].append({
+				output[title] = {
 					"title": title,
 					"store_page": store_page,
 					"release_date": date.format_optional(release_date),
 					"reviews": reviews,
 					"price": price,
 					"top_tags": tags,
-				})
-
-	# Store the games oldest to newest
-	output["games"].reverse()
+				}
 
 	# Commit the results to disk
 	with open(args.output, 'w') as f:

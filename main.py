@@ -4,6 +4,7 @@
 
 import argparse
 import datetime
+import json
 
 import date
 from scrape import scrape
@@ -81,4 +82,6 @@ if __name__ == "__main__":
 	if args.command == "scrape":
 		scrape(args)
 	elif args.command == "analyze":
-		analyze(args)
+		with open(args.input, 'r') as f:
+			data = json.loads(f.read())
+		analyze(data, min_reviews=args.min_reviews)
