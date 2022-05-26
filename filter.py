@@ -23,6 +23,13 @@ def union(*dicts):
 		*dicts,
 	)
 
+def delete(parent_dict, child_dict):
+	parent_dict = parent_dict.copy()
+	for key in child_dict.keys():
+		if key in parent_dict:
+			del parent_dict[key]
+	return parent_dict
+
 def intersect(*dicts):
 	dicts = list(dicts)
 
@@ -37,10 +44,11 @@ def intersect(*dicts):
 		b = dicts.pop()
 		return {k:a[k] for k in a if k in b}
 
-	return intersection(
-		intersection(dicts.pop(), dicts.pop()),
+	return intersect(
+		intersect(dicts.pop(), dicts.pop()),
 		*dicts,
 	)
+
 
 def save(games, path):
 	with open(path, 'w') as f:
