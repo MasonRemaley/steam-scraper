@@ -88,3 +88,4 @@ if Steam gets upset if they realize you're scraping, doing that is certainly a w
 - If we want to look at old years, we could jump more pages back
 - Check follower counts?
 - Add back top tags check?
+- Document keys.js
