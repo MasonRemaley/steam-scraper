@@ -5,7 +5,7 @@
 // 3. Paste this code into the console, results will be printed to console
 
 var keys = `
-// Place keys here, separated by newlines
+// Paste keys here, separated by newlines
 `;
 
 keys.split("\n").forEach(key => {
@@ -15,14 +15,18 @@ keys.split("\n").forEach(key => {
 	function response_listener() {
 		let body = this.responseText;
 		let result = body.split("<h2>Activation Details</h2>")[1];
-		if (!result && !err) {
+		if (!result) {
 			console.log("Failed to query " + key);
+			return;
 		}
 		result = result.split("</table>")[0];
 		result = result.match(/<td>.*<\/td>/g);
 		result = result.map(line => line.replace(/<[^>]*>/g, ""));
-		let line = [key, (result[0] === "Activated") ? '"' + result[1] + '"' : result[0]].join("\t");
-		console.log(line);
+		let activated = (result[0] === "Activated");
+		if (activated) {
+			let line = [key, '"' + result[1] + '"'].join("\t");
+			console.log(line);
+		}
 	}
 	req.addEventListener("load", response_listener);
 	req.open("GET", "https://partner.steamgames.com/querycdkey/cdkey?cdkey=" + key + "&method=Query");
