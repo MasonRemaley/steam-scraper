@@ -17,13 +17,14 @@ def scrape(tags, start, end):
 	# Convert the args
 	start = date.start(start)
 	end = date.end(end)
-	if type(tags) != list:
-		tags = [tags]
-	try:
-		tags = "%2C".join([str(TAG_IDS[tag]) for tag in tags])
-	except KeyError as tag:
-		print(f"Error: tag {tag} not found in 'tags.py'")
-		return None
+	if tags is not None:
+		if type(tags) != list:
+			tags = [tags]
+		try:
+			tags = "%2C".join([str(TAG_IDS[tag]) for tag in tags])
+		except KeyError as tag:
+			print(f"Error: tag {tag} not found in 'tags.py'")
+			return None
 
 	# The output data
 	output = {}
@@ -34,8 +35,13 @@ def scrape(tags, start, end):
 	while current_date > start:
 		# Build the URL
 		max_results = 25 # The minimum that's respected
-		url = ("https://store.steampowered.com/search/?sort_by=Released_DESC&tags=" +
-			f"{tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}")
+		if tags == None:
+			# Note: removed requirement that game support Windows as well
+			url = ("https://store.steampowered.com/search/?sort_by=Released_DESC" +
+				f"&category1=998&category3=2&start={result_index}&count={max_results}")
+		else:
+			url = ("https://store.steampowered.com/search/?sort_by=Released_DESC&tags=" +
+				f"{tags}&category1=998&category3=2&os=win&start={result_index}&count={max_results}")
 
 		# Make the request
 		print(f"Scraping `{url}`, CTRL+C to cancel...")
@@ -81,7 +87,10 @@ def scrape(tags, start, end):
 			else:
 				price = None
 
-			top_tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
+			if tags is not None:
+				top_tags = [TAG_NAMES[int(tag)] for tag in game["data-ds-tagids"][1:-1].split(",")]
+			else:
+				top_tags = None
 
 			if release_date and (start <= release_date <= end):
 				output[title] = {
