@@ -1,5 +1,9 @@
 # Steam Scraper
 
+# About
+
+A collection of stuff I use to quickly get publicly available info on Steam games, estimate revenue, and manage keys. Please don't take my revenue estimates too seriously, and read the warning section before use. :)
+
 # Installation
 
 ```py
